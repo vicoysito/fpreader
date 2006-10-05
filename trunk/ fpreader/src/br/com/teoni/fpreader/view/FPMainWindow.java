@@ -4,13 +4,15 @@
  * Created on 25 de Setembro de 2006, 20:21
  */
 
-package br.com.teoni.fingerprintreader.view;
+package br.com.teoni.fpreader.view;
 
-import br.com.teoni.fingerprintreader.controller.FPManager;
+import br.com.teoni.fpreader.controller.FPManager;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.io.IOException;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.UIManager;
 
 /**
  *
@@ -21,6 +23,7 @@ public class FPMainWindow extends javax.swing.JFrame {
     /** Creates new form FPMainWindow */
     public FPMainWindow() {
         initComponents();
+        this.setIconImage(Toolkit.getDefaultToolkit().createImage(getClass().getResource("/br/com/teoni/fpreader/resources/images/icon.png")));
     }
     
     /** This method is called from within the constructor to
@@ -42,6 +45,7 @@ public class FPMainWindow extends javax.swing.JFrame {
         jButton5 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("FPReader");
         jLabel1.setText("URL:");
 
         jButton1.setText("Selecionar...");
@@ -191,6 +195,9 @@ public class FPMainWindow extends javax.swing.JFrame {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
+                try{
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                }catch (Exception e){}
                 new FPMainWindow().setVisible(true);
             }
         });

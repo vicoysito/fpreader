@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package br.com.teoni.fingerprintreader.model;
+package br.com.teoni.fpreader.model;
 
 /**
  *
