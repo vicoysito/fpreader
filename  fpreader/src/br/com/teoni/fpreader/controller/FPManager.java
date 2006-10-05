@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package br.com.teoni.fingerprintreader.controller;
+package br.com.teoni.fpreader.controller;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -63,15 +63,6 @@ public class FPManager {
             skeleton[0][j] = 0;
             skeleton[width-1][j] = 0;
         }
-        
-        //Aplicando o algoritmo de Hilditch
-        //skeleton = hilditch(skeleton);
-        
-        //Aplicando o algoritmo de Zhang-Suen
-        //skeleton = zhangSuen(skeleton);
-        
-        //Mapeando as Minúcias
-        //skeleton = mapMinutiaes(skeleton);
         
         return skeleton;
     }
