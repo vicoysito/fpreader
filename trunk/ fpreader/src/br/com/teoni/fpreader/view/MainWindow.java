@@ -7,13 +7,21 @@
 package br.com.teoni.fpreader.view;
 
 import br.com.teoni.fpreader.fingerprintprocessing.FPManager;
+import br.com.teoni.fpreader.griaule.Griaule;
+import br.com.teoni.fpreader.imageprocessing.BasicOperations;
 import br.com.teoni.fpreader.imageprocessing.Thinning;
 import br.com.teoni.fpreader.model.Fingerprint;
+import com.griaule.grFinger.FingerprintImage;
+import com.griaule.grFinger.GrErrorException;
+import com.griaule.grFinger.ImageCallBack;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageFilter;
+import java.awt.image.ImageProducer;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
@@ -22,14 +30,16 @@ import javax.swing.UIManager;
  *
  * @author  Teoni
  */
-public class MainWindow extends javax.swing.JFrame {
+public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
     
     /**
      * Creates new form MainWindow
      */
     public MainWindow() {
         initComponents();
-        this.setIconImage(Toolkit.getDefaultToolkit().createImage(getClass().getResource("/br/com/teoni/fpreader/resources/images/icon.png")));
+        setIconImage(Toolkit.getDefaultToolkit().createImage(getClass().getResource("/br/com/teoni/fpreader/resources/images/icon.png")));
+        this.griaule = new Griaule(this);
+        this.griaule.powerOn();
     }
     
     /** This method is called from within the constructor to
@@ -49,6 +59,7 @@ public class MainWindow extends javax.swing.JFrame {
         jButton4 = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("FPReader");
@@ -113,6 +124,13 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
+        jButton6.setText("Holt");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -126,14 +144,15 @@ public class MainWindow extends javax.swing.JFrame {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
                     .add(jLabel3)
-                    .add(jButton4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jButton2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jButton5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 105, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                    .add(jButton2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                    .add(jButton4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -152,6 +171,8 @@ public class MainWindow extends javax.swing.JFrame {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton3)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jButton6)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton5))
@@ -160,26 +181,31 @@ public class MainWindow extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        Thinning.holt(this.fingerprint);
+        this.refresh();
+    }//GEN-LAST:event_jButton6ActionPerformed
+    
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         this.resetImage();
     }//GEN-LAST:event_jButton5ActionPerformed
-
+    
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         FPManager.mapMinutiaes(this.fingerprint);
-        this.jLabel2.setIcon(new ImageIcon(FPManager.toImage(this.fingerprint.getSkeleton())));
+        this.refresh();
     }//GEN-LAST:event_jButton4ActionPerformed
-
+    
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         Thinning.hilditch(this.fingerprint);
-        this.jLabel2.setIcon(new ImageIcon(FPManager.toImage(this.fingerprint.getSkeleton())));
+        this.refresh();
     }//GEN-LAST:event_jButton3ActionPerformed
-
+    
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         Thinning.zhangSuen(this.fingerprint);
-        this.jLabel2.setIcon(new ImageIcon(FPManager.toImage(this.fingerprint.getSkeleton())));
+        this.refresh();
     }//GEN-LAST:event_jButton2ActionPerformed
-
+    
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         this.path = this.openFile();
         this.jTextField1.setText(this.path);
@@ -208,17 +234,42 @@ public class MainWindow extends javax.swing.JFrame {
         return path;
     }
     
-    private void setImage(Image img){
-        this.jLabel2.setIcon(new ImageIcon(img));
+    private void refresh(){
+        this.jLabel2.setIcon(new ImageIcon(FPManager.toImage(this.fingerprint.getSkeleton())));
     }
     
     private void resetImage(){
         try {
-            this.fingerprint = FPManager.getFingerprint(this.path);
-            this.jLabel2.setIcon(new ImageIcon(FPManager.toImage(this.fingerprint.getBinaryImage())));
+            if(this.path.equals("")){
+                updateByFinger(this.producer);
+            }else{
+                this.fingerprint = FPManager.getFingerprint(this.path);
+                this.jLabel2.setIcon(new ImageIcon(FPManager.toImage(this.fingerprint.getBinaryImage())));
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+    
+    public void onImage(String string, FingerprintImage fingerprintImage) {
+        try {
+            this.producer = fingerprintImage.newImageProducer();
+            updateByFinger(fingerprintImage.newImageProducer());
+        } catch (GrErrorException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    private void updateByFinger(ImageProducer producer){
+        this.path = "";
+        Image image = Toolkit.getDefaultToolkit().createImage(producer);
+        BufferedImage bfImg = new BufferedImage(image.getWidth(null)-50, image.getHeight(null)-50,BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = bfImg.createGraphics();
+        g2d.drawImage(image,-50,-50,null);
+        g2d.dispose();
+        this.fingerprint = FPManager.getFingerprint(bfImg);
+        this.fingerprint.setSkeleton(BasicOperations.binarizeImage(bfImg));
+        refresh();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -227,6 +278,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -234,5 +286,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
     private Fingerprint fingerprint;
+    private ImageProducer producer;
+    private Griaule griaule;
     private String path;
 }
