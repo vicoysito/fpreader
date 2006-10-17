@@ -14,6 +14,7 @@ import br.com.teoni.fpreader.model.Fingerprint;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -39,22 +40,9 @@ public class FPManager {
         BufferedImage bfImage = ImageIO.read(new File(url));
         int height = bfImage.getHeight();
         int width = bfImage.getWidth();
-        byte[][] image = new byte[width][height];
         
-        //Binarizando a Imagem
-        for(int i=0; i<width; i++){
-            for(int j=0; j<height; j++){
-                Color c = new Color(bfImage.getRGB(i,j));
-                int red = c.getRed();
-                int green = c.getGreen();
-                int blue = c.getBlue();
-                if(red<127 && green<127 && blue<127){
-                    image[i][j] = 1;
-                }else{
-                    image[i][j] = 0;
-                }
-            }
-        }
+        //Pegando a imagem binarizada
+        byte[][] image = BasicOperations.binarizeImage(bfImage);
         
         //Removendo as bordas
         for(int i=0; i<width; i++){
@@ -74,13 +62,38 @@ public class FPManager {
         return fingerprint;
     }
     
+    public static Fingerprint getFingerprint(BufferedImage bfImage){
+        int height = bfImage.getHeight();
+        int width = bfImage.getWidth();
+        
+        //Pegando a imagem binarizada
+        byte[][] image = BasicOperations.binarizeImage(bfImage);
+        
+        //Removendo as bordas
+        for(int i=0; i<width; i++){
+            image[i][0] = 0;
+            image[i][height-1] = 0;
+        }
+        for(int j=0; j<height; j++){
+            image[0][j] = 0;
+            image[width-1][j] = 0;
+        }
+        
+        Fingerprint fingerprint = new Fingerprint("");
+        fingerprint.setWidth(width);
+        fingerprint.setHeight(height);
+        fingerprint.setBinaryImage(image);
+        
+        return fingerprint;
+    }
+    
     public static Fingerprint mapMinutiaes(Fingerprint fingerprint){
         int width = fingerprint.getWidth();
         int height = fingerprint.getHeight();
         byte[][] outSkeleton = BasicOperations.copy(fingerprint.getSkeleton());
         
-        for(int i=5; i<width-5; i++){
-            for(int j=5; j<height-5; j++){
+        for(int i=100; i<width-100; i++){
+            for(int j=100; j<height-100; j++){
                 int patterns = BasicOperations.timesPattern01(i,j,fingerprint.getSkeleton());
                 if(fingerprint.getSkeleton()[i][j]==1){
                     if(patterns==1){
@@ -93,8 +106,75 @@ public class FPManager {
             }
         }
         
+        Point core = getCore(fingerprint,10);
+        outSkeleton = drawRectangle(core.x,core.y,outSkeleton,4);
+        
         fingerprint.setSkeleton(outSkeleton);
         return fingerprint;
+    }
+    
+    public static Point getCore(Fingerprint fingerprint, int searchRadius){
+        int width = fingerprint.getWidth();
+        int height = fingerprint.getHeight();
+        byte[][] skeleton = BasicOperations.copy(fingerprint.getSkeleton());
+        
+        Point core = new Point(0,0);
+        Point previous = new Point(0,0);
+        
+        Double gradCur = 0.0;
+        Double gradPrev = 0.0;
+        Double gradChangeBig = 0.0;
+        Double gradChange = 0.0;
+        Double gradDistanceBig = 0.0;
+        Double gradDistance = 0.0;
+        
+        for(int i=50; i<width-50; i++){
+            for(int j=50; j<height-50; j++){
+                if(skeleton[i][j]==1){
+                    int control = 0;
+                    Point p1 = new Point();
+                    Point p2 = new Point();
+                    
+                    for(int m=-1*searchRadius; m<=searchRadius; m++){
+                        for(int n=-1*searchRadius; n<=searchRadius; n++){
+                            if(m==searchRadius||m==-1*searchRadius||n==searchRadius||n==-1*searchRadius){
+                                int x = i+m;
+                                int y = j+n;
+                                if(skeleton[x][y]==1){
+                                    control++;
+                                    if(control==1){
+                                        p1.setLocation(x,y);
+                                    }else if(control==2){
+                                        p2.setLocation(x,y);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(control==2){
+                        if((p2.x-p1.x)>0){
+                            gradCur = Double.valueOf(((double)(p2.y - p1.y)/(double)(p2.x - p1.x)));
+                            // if(gradCur>0.0 && gradPrev<0.0){
+                            gradChange = Double.valueOf(Math.abs(gradCur)+Math.abs(gradPrev));
+                            gradDistance = Double.valueOf(Math.abs(i)-Math.abs(previous.x));
+                            if(gradChangeBig<gradChange){
+                                if(gradDistanceBig<gradDistance){
+                                    gradChangeBig = gradChange;
+                                    gradDistanceBig = gradDistance;
+                                    core.setLocation(i,j);
+                                }
+                                break;
+                            }
+                            //}
+                            gradPrev = gradCur;
+                            gradCur = 0.0;
+                            previous.setLocation(i,j);
+                        }
+                    }
+                }
+            }
+        }
+        return core;
     }
     
     private static byte[][] drawRectangle(int x, int y, byte[][] skeleton, int color){
@@ -130,6 +210,9 @@ public class FPManager {
                 }
                 if(image[i][j]==3){
                     bfImage.setRGB(i,j,Color.red.getRGB());
+                }
+                if(image[i][j]==4){
+                    bfImage.setRGB(i,j,Color.blue.getRGB());
                 }
             }
         }
