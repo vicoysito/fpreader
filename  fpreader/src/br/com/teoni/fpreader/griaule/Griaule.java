@@ -27,6 +27,7 @@ public class Griaule implements StatusCallBack, FingerCallBack{
     
     private GrFinger finger;
     private ImageCallBack imageCallBack;
+    private boolean power;
     
     /** Creates a new instance of Griaule */
     public Griaule(ImageCallBack imgCbk) {
@@ -37,7 +38,7 @@ public class Griaule implements StatusCallBack, FingerCallBack{
             ex.printStackTrace();
         }
     }
-
+    
     public void onPlug(String string) {
         try {
             finger.startCapture(string,this,imageCallBack);
@@ -45,7 +46,7 @@ public class Griaule implements StatusCallBack, FingerCallBack{
             ex.printStackTrace();
         }
     }
-
+    
     public void onUnplug(String string) {
         try {
             finger.stopCapture(string);
@@ -53,19 +54,32 @@ public class Griaule implements StatusCallBack, FingerCallBack{
             ex.printStackTrace();
         }
     }
-
+    
     public void onFingerDown(String string) {
     }
-
+    
     public void onFingerUp(String string) {
     }
     
     public void powerOn(){
         try {
             finger.initializeCapture(this);
+            this.power = true;
         } catch (GrErrorException ex) {
             ex.printStackTrace();
         }
     }
     
+    public void powerOff(){
+        try {
+            finger.finalizeCapture();
+            this.power = false;
+        } catch (GrErrorException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public boolean isOn(){
+        return this.power;
+    }
 }

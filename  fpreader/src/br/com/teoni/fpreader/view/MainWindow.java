@@ -14,6 +14,7 @@ import br.com.teoni.fpreader.model.Fingerprint;
 import com.griaule.grFinger.FingerprintImage;
 import com.griaule.grFinger.GrErrorException;
 import com.griaule.grFinger.ImageCallBack;
+import com.jhlabs.image.*;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -38,8 +39,6 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
     public MainWindow() {
         initComponents();
         setIconImage(Toolkit.getDefaultToolkit().createImage(getClass().getResource("/br/com/teoni/fpreader/resources/images/icon.png")));
-        this.griaule = new Griaule(this);
-        this.griaule.powerOn();
     }
     
     /** This method is called from within the constructor to
@@ -60,6 +59,7 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
         jLabel3 = new javax.swing.JLabel();
         jButton5 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
+        jToggleButton1 = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("FPReader");
@@ -131,6 +131,13 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
             }
         });
 
+        jToggleButton1.setText("Ligar Finger");
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -151,7 +158,8 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
                     .add(jButton2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
                     .add(jButton4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                    .add(jToggleButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -175,12 +183,27 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton5))
+                        .add(jButton5)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 256, Short.MAX_VALUE)
+                        .add(jToggleButton1))
                     .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        if(this.jToggleButton1.isSelected()){
+            this.jToggleButton1.setText("Desligar Finger");
+            if(this.griaule==null){
+                this.griaule = new Griaule(this);
+            }
+            this.griaule.powerOn();
+        }else{
+            this.jToggleButton1.setText("Ligar Finger");
+            this.griaule.powerOff();
+        }
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
     
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         Thinning.holt(this.fingerprint);
@@ -267,9 +290,16 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
         Graphics2D g2d = bfImg.createGraphics();
         g2d.drawImage(image,-50,-50,null);
         g2d.dispose();
+        //Start filtering
+        GaussianFilter gf = new GaussianFilter(5);
+        gf.filter(bfImg,bfImg);
+        //end filtering
+
         this.fingerprint = FPManager.getFingerprint(bfImg);
         this.fingerprint.setSkeleton(BasicOperations.binarizeImage(bfImg));
         refresh();
+        
+        //this.jLabel2.setIcon(new ImageIcon(bfImg.getScaledInstance(bfImg.getWidth(), bfImg.getHeight(),java.awt.Image.SCALE_SMOOTH)));
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -284,6 +314,7 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
     private Fingerprint fingerprint;
     private ImageProducer producer;
