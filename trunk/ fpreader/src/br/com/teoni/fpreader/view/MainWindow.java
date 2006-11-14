@@ -11,16 +11,20 @@ import br.com.teoni.fpreader.griaule.Griaule;
 import br.com.teoni.fpreader.imageprocessing.BasicOperations;
 import br.com.teoni.fpreader.imageprocessing.Thinning;
 import br.com.teoni.fpreader.model.Fingerprint;
+import br.com.teoni.fpreader.model.Output;
 import com.griaule.grFinger.FingerprintImage;
 import com.griaule.grFinger.GrErrorException;
 import com.griaule.grFinger.ImageCallBack;
-import com.jhlabs.image.*;
+import com.jhlabs.image.MedianFilter;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageFilter;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ConvolveOp;
 import java.awt.image.ImageProducer;
+import java.awt.image.Kernel;
+import java.awt.image.RescaleOp;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -39,6 +43,8 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
     public MainWindow() {
         initComponents();
         setIconImage(Toolkit.getDefaultToolkit().createImage(getClass().getResource("/br/com/teoni/fpreader/resources/images/icon.png")));
+        this.jToggleButton1.setSelected(true);
+        this.fingerPowerOnOff();
     }
     
     /** This method is called from within the constructor to
@@ -60,6 +66,10 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
         jButton5 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         jToggleButton1 = new javax.swing.JToggleButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("FPReader");
@@ -90,8 +100,8 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
-                .addContainerGap())
+                .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
+                .add(31, 31, 31))
         );
 
         jButton2.setText("Zhang-Suen");
@@ -115,7 +125,9 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
             }
         });
 
-        jLabel3.setText("M\u00e9todos");
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel3.setText("Afinamento");
 
         jButton5.setText("Desfazer Tudo");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -138,28 +150,47 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
             }
         });
 
+        jTextArea1.setBackground(new java.awt.Color(0, 0, 0));
+        jTextArea1.setColumns(20);
+        jTextArea1.setEditable(false);
+        jTextArea1.setRows(5);
+        jTextArea1.setTabSize(4);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel4.setText("Outras Op\u00e7\u00f5es");
+
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel5.setText("Sa\u00edda");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                    .add(jLabel3)
-                    .add(jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                    .add(jButton2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                    .add(jButton4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                    .add(jToggleButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(jLabel1)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE))
+                            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                            .add(jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                            .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jToggleButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                            .add(jButton6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                            .add(jButton2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)))
+                    .add(jLabel5))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -181,28 +212,25 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton6)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jLabel4)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton5)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 256, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jToggleButton1))
                     .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jLabel5)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        if(this.jToggleButton1.isSelected()){
-            this.jToggleButton1.setText("Desligar Finger");
-            if(this.griaule==null){
-                this.griaule = new Griaule(this);
-            }
-            this.griaule.powerOn();
-        }else{
-            this.jToggleButton1.setText("Ligar Finger");
-            this.griaule.powerOff();
-        }
+        this.fingerPowerOnOff();
     }//GEN-LAST:event_jToggleButton1ActionPerformed
     
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
@@ -248,6 +276,7 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
             }
         });
     }
+    
     private String openFile(){
         String path = "";
         JFileChooser fileChooser = new JFileChooser();
@@ -255,6 +284,19 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
             path =  fileChooser.getSelectedFile().getPath();
         }
         return path;
+    }
+    
+    private void fingerPowerOnOff(){
+        if(this.jToggleButton1.isSelected()){
+            this.jToggleButton1.setText("Desligar Finger");
+            if(this.griaule==null){
+                this.griaule = new Griaule(this);
+            }
+            this.griaule.powerOn();
+        }else{
+            this.jToggleButton1.setText("Ligar Finger");
+            this.griaule.powerOff();
+        }
     }
     
     private void refresh(){
@@ -290,13 +332,9 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
         Graphics2D g2d = bfImg.createGraphics();
         g2d.drawImage(image,-50,-50,null);
         g2d.dispose();
-        //Start filtering
-        GaussianFilter gf = new GaussianFilter(5);
-        gf.filter(bfImg,bfImg);
-        //end filtering
-
+        
         this.fingerprint = FPManager.getFingerprint(bfImg);
-        this.fingerprint.setSkeleton(BasicOperations.binarizeImage(bfImg));
+        this.fingerprint.setSkeleton(BasicOperations.applyFilters(bfImg));
         refresh();
         
         //this.jLabel2.setIcon(new ImageIcon(bfImg.getScaledInstance(bfImg.getWidth(), bfImg.getHeight(),java.awt.Image.SCALE_SMOOTH)));
@@ -312,7 +350,11 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables

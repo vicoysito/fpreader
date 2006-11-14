@@ -9,6 +9,7 @@
 
 package br.com.teoni.fpreader.imageprocessing;
 
+import com.jhlabs.image.MedianFilter;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
@@ -63,7 +64,7 @@ public class BasicOperations {
     }
     
     public static byte[][] binarizeImage(BufferedImage bfImage){
-        final int THRESHOLD = 170;
+        final int THRESHOLD = 190;
         int height = bfImage.getHeight();
         int width = bfImage.getWidth();
         byte[][] image = new byte[width][height];
@@ -82,5 +83,22 @@ public class BasicOperations {
             }
         }
         return image;
+    }
+    
+    public static byte[][] applyFilters(BufferedImage bfImage){
+        int height = bfImage.getHeight();
+        int width = bfImage.getWidth();
+        byte[][] image;
+        
+        //Median filter 5 times
+        MedianFilter filter = new MedianFilter();
+        for(int i=0; i<5; i++){
+            bfImage = filter.filter(bfImage, new BufferedImage(width,height, bfImage.getType()));
+        }
+        
+        //Binarizing the image
+        image = BasicOperations.binarizeImage(bfImage);
+        
+        return  image;
     }
 }
