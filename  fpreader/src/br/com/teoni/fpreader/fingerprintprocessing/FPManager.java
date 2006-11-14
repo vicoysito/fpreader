@@ -11,6 +11,7 @@ package br.com.teoni.fpreader.fingerprintprocessing;
 
 import br.com.teoni.fpreader.imageprocessing.*;
 import br.com.teoni.fpreader.model.Fingerprint;
+import br.com.teoni.fpreader.model.Output;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -74,6 +75,7 @@ public class FPManager {
             image[i][0] = 0;
             image[i][height-1] = 0;
         }
+        
         for(int j=0; j<height; j++){
             image[0][j] = 0;
             image[width-1][j] = 0;
@@ -88,6 +90,7 @@ public class FPManager {
     }
     
     public static Fingerprint mapMinutiaes(Fingerprint fingerprint){
+        
         int width = fingerprint.getWidth();
         int height = fingerprint.getHeight();
         byte[][] outSkeleton = BasicOperations.copy(fingerprint.getSkeleton());
@@ -106,8 +109,8 @@ public class FPManager {
             }
         }
         
-        Point core = getCore(fingerprint,10);
-        outSkeleton = drawRectangle(core.x,core.y,outSkeleton,4);
+        //Point core = getCore(fingerprint,10);
+        //outSkeleton = drawRectangle(core.x,core.y,outSkeleton,4);
         
         fingerprint.setSkeleton(outSkeleton);
         return fingerprint;
@@ -206,13 +209,13 @@ public class FPManager {
                     bfImage.setRGB(i,j,Color.black.getRGB());
                 }
                 if(image[i][j]==2){
-                    bfImage.setRGB(i,j,Color.green.getRGB());
+                    bfImage.setRGB(i,j,Color.blue.getRGB());
                 }
                 if(image[i][j]==3){
                     bfImage.setRGB(i,j,Color.red.getRGB());
                 }
                 if(image[i][j]==4){
-                    bfImage.setRGB(i,j,Color.blue.getRGB());
+                    bfImage.setRGB(i,j,Color.green.getRGB());
                 }
             }
         }
