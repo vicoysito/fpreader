@@ -10,14 +10,10 @@
 package br.com.teoni.fpreader.griaule;
 
 import com.griaule.grFinger.FingerCallBack;
-import com.griaule.grFinger.FingerprintImage;
 import com.griaule.grFinger.GrErrorException;
 import com.griaule.grFinger.GrFinger;
 import com.griaule.grFinger.ImageCallBack;
 import com.griaule.grFinger.StatusCallBack;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.image.ImageProducer;
 
 /**
  *

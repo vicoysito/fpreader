@@ -9,17 +9,23 @@
 
 package br.com.teoni.fpreader.model;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+
 /**
  *
  * @author Teoni
  */
 public class Fingerprint {
     
+    private String url;
     private int height;
     private int width;
-    private String url;
+    private BufferedImage bufferedImage;
     private byte[][] skeleton;
     private byte[][] binaryImage;
+    private int bifurcations;
+    private int endoflines;
     
     /**
      * Creates a new instance of Fingerprint
@@ -66,6 +72,34 @@ public class Fingerprint {
 
     public void setBinaryImage(byte[][] binaryImage) {
         this.binaryImage = binaryImage;
+    }
+
+    public int getBifurcations() {
+        return bifurcations;
+    }
+
+    public void setBifurcations(int bifurcations) {
+        this.bifurcations = bifurcations;
+    }
+
+    public int getEndoflines() {
+        return endoflines;
+    }
+
+    public void setEndoflines(int endoflines) {
+        this.endoflines = endoflines;
+    }
+
+    public BufferedImage getBufferedImage() {
+        return bufferedImage;
+    }
+
+    public void setBufferedImage(BufferedImage bufferedImage) {
+        this.bufferedImage = bufferedImage;
+    }
+    
+    public Image getImage(){
+        return this.bufferedImage.getScaledInstance(this.width, this.height,Image.SCALE_SMOOTH);
     }
     
 }

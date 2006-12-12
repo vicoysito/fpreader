@@ -10,26 +10,20 @@
 package br.com.teoni.fpreader.fingerprintprocessing;
 
 import br.com.teoni.fpreader.imageprocessing.*;
+import br.com.teoni.fpreader.math.Moda;
 import br.com.teoni.fpreader.model.Fingerprint;
-import br.com.teoni.fpreader.model.Output;
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata;
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -37,162 +31,227 @@ import javax.swing.JOptionPane;
  */
 public class FPManager {
     
-    public static Fingerprint getFingerprint(String url) throws IOException{
-        BufferedImage bfImage = ImageIO.read(new File(url));
-        int height = bfImage.getHeight();
-        int width = bfImage.getWidth();
-        
-        //Pegando a imagem binarizada
-        byte[][] image = BasicOperations.binarizeImage(bfImage);
-        
-        //Removendo as bordas
-        for(int i=0; i<width; i++){
-            image[i][0] = 0;
-            image[i][height-1] = 0;
+    public static Fingerprint getFingerprint(String url){
+        BufferedImage bfImage = null;
+        try {
+            bfImage = ImageIO.read(new File(url));
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
-        for(int j=0; j<height; j++){
-            image[0][j] = 0;
-            image[width-1][j] = 0;
-        }
-        
         Fingerprint fingerprint = new Fingerprint(url);
-        fingerprint.setWidth(width);
-        fingerprint.setHeight(height);
-        fingerprint.setBinaryImage(image);
-        
+        fingerprint.setWidth(bfImage.getWidth());
+        fingerprint.setHeight(bfImage.getHeight());
+        fingerprint.setBinaryImage(BasicOperations.applyFilters(bfImage));
+        fingerprint.setBufferedImage(bfImage);
+        fingerprint.setSkeleton(fingerprint.getBinaryImage());
         return fingerprint;
     }
     
-    public static Fingerprint getFingerprint(BufferedImage bfImage){
-        int height = bfImage.getHeight();
-        int width = bfImage.getWidth();
-        
-        //Pegando a imagem binarizada
-        byte[][] image = BasicOperations.binarizeImage(bfImage);
-        
-        //Removendo as bordas
-        for(int i=0; i<width; i++){
-            image[i][0] = 0;
-            image[i][height-1] = 0;
-        }
-        
-        for(int j=0; j<height; j++){
-            image[0][j] = 0;
-            image[width-1][j] = 0;
-        }
+    public static Fingerprint getFingerprint(ImageProducer producer){
+        Image image = Toolkit.getDefaultToolkit().createImage(producer);
+        BufferedImage bfImage = new BufferedImage(image.getWidth(null)-50, image.getHeight(null)-50,BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = bfImage.createGraphics();
+        g2d.drawImage(image,-50,-50,null);
+        g2d.dispose();
         
         Fingerprint fingerprint = new Fingerprint("");
-        fingerprint.setWidth(width);
-        fingerprint.setHeight(height);
-        fingerprint.setBinaryImage(image);
-        
+        fingerprint.setWidth(bfImage.getWidth());
+        fingerprint.setHeight(bfImage.getHeight());
+        fingerprint.setBinaryImage(BasicOperations.applyFilters(bfImage));
+        fingerprint.setBufferedImage(bfImage);
+        fingerprint.setSkeleton(fingerprint.getBinaryImage());
         return fingerprint;
+    }
+    
+    public static BufferedImage getDirectionalImage(Fingerprint fingerprint){
+        Image image = fingerprint.getImage();
+        BufferedImage bfImage2 = new BufferedImage(fingerprint.getWidth(), fingerprint.getHeight(),image.SCALE_SMOOTH);
+        BufferedImage bfImage = fingerprint.getBufferedImage();
+        Graphics2D g2d = bfImage2.createGraphics();
+        
+        int window = 9;
+        int vSquares = (int)Math.floor(fingerprint.getWidth()/window);
+        int hSquares = (int)Math.floor(fingerprint.getHeight()/window);
+        int n = (int)Math.floor(window/2);
+        
+        int[][] directions = new int[vSquares-2][hSquares-2];
+        
+        g2d.drawImage(image,0,0,null);
+        
+        //Tratando cada 9x9
+        g2d.setColor(Color.red);
+        for(int i=1; i<vSquares-1; i++){
+            for(int j=1; j<hSquares-1; j++){
+                //Pixel central
+                Point pixel = new Point((i*window)+n,(j*window)+n);
+                int greyLevel = 255-(new Color(bfImage.getRGB(pixel.x, pixel.y))).getRed();
+                
+                //Outros dados
+                int direction = 0;
+                int sums = 0;
+                
+                int[] s = new int[]{0,0,0,0,0,0,0,0};
+                 
+                for(int w=-n; w<=n/2; w++){
+                    s[0] += 255-(new Color(bfImage.getRGB(pixel.x,pixel.y+2*w)).getRed());
+                    s[1] += 255-(new Color(bfImage.getRGB(pixel.x+w,pixel.y-2*w)).getRed());
+                    s[2] += 255-(new Color(bfImage.getRGB(pixel.x+2*w,pixel.y-2*w)).getRed());
+                    s[3] += 255-(new Color(bfImage.getRGB(pixel.x+2*w,pixel.y-w)).getRed());
+                    s[4] += 255-(new Color(bfImage.getRGB(pixel.x+2*w,pixel.y)).getRed());
+                    s[5] += 255-(new Color(bfImage.getRGB(pixel.x+2*w,pixel.y+w)).getRed());
+                    s[6] += 255-(new Color(bfImage.getRGB(pixel.x+2*w,pixel.y+2*w)).getRed());
+                    s[7] += 255-(new Color(bfImage.getRGB(pixel.x+w,pixel.y+2*w)).getRed());
+                }
+                
+                for(int k=0; k<s.length; k++){
+                    s[k] = s[k]-greyLevel;
+                }
+                
+                int smin = 0;
+                int smax = 0;
+                
+                for(int w=0; w<s.length; w++){
+                    if(s[w]<s[smin]){
+                        smin = w;
+                    }
+                    if(s[w]>s[smax]){
+                        smax = w;
+                    }
+                }
+                
+                /*
+                 Arrays.sort(s);
+                 smin = s[0];
+                 smax = s[s.length-1];
+                 */
+                
+                if((4*greyLevel+smin+smax)<((3*sums)/s.length)){
+                    directions[i-1][j-1] = smax;
+                }else{
+                    directions[i-1][j-1] = smin;
+                }
+            }
+        }
+        
+        /*
+        int dirWindow = 3;
+        int dirVSquares = (int)Math.floor(directions.length/dirWindow);
+        int dirHSquares = (int)Math.floor(directions[0].length/dirWindow);
+        n = (int)Math.floor(dirWindow/2);
+        int[][] newDirections = new int[directions.length][directions[0].length];
+        
+        for(int i=0; i<dirVSquares; i++){
+            for(int j=0; j<dirHSquares; j++){
+                int x = (i*dirWindow)+n;
+                int y = (j*dirWindow)+n;
+                
+                Moda moda = new Moda();
+                
+                moda.adicionar(directions[x-1][y]);
+                moda.adicionar(directions[x-1][y+1]);
+                moda.adicionar(directions[x][y+1]);
+                moda.adicionar(directions[x+1][y+1]);
+                moda.adicionar(directions[x+1][y]);
+                moda.adicionar(directions[x+1][y-1]);
+                moda.adicionar(directions[x][y-1]);
+                moda.adicionar(directions[x-1][y-1]);
+                moda.adicionar(directions[x][y]);
+                
+                int newDirection = moda.calcular().intValue();
+                
+                directions[x-1][y] = newDirection;
+                directions[x-1][y+1] = newDirection;
+                directions[x][y+1] = newDirection;
+                directions[x+1][y+1] = newDirection;
+                directions[x+1][y] = newDirection;
+                directions[x+1][y-1] = newDirection;
+                directions[x][y-1] = newDirection;
+                directions[x-1][y-1] = newDirection;
+                directions[x][y] = newDirection;
+                
+            }
+        }
+        */
+        //Desenhando as linhas
+        for(int i=0; i<directions.length; i++){
+            for(int j=0; j<directions[0].length; j++){
+                switch(directions[i][j]){
+                    case 0:
+                        g2d.drawLine((i*window),(j*window)+6,(i*window)+10,(j*window)+6);
+                        break;
+                    case 1:
+                        g2d.drawLine((i*window),(j*window)+8,(i*window)+10,(j*window)+4);
+                        break;
+                    case 2:
+                        g2d.drawLine((i*window),(j*window)+10,(i*window)+10,(j*window));
+                        break;
+                    case 3:
+                        g2d.drawLine((i*window)+4,(j*window)+10,(i*window)+8,(j*window));
+                        break;
+                    case 4:
+                        g2d.drawLine((i*window)+6,(j*window)+10,(i*window)+6,(j*window));
+                        break;
+                    case 5:
+                        g2d.drawLine((i*window)+8,(j*window)+10,(i*window)+4,(j*window));
+                        break;
+                    case 6:
+                        g2d.drawLine((i*window)+10,(j*window)+10,(i*window),(j*window));
+                        break;
+                    case 7:
+                        g2d.drawLine((i*window)+10,(j*window)+8,(i*window),(j*window)+4);
+                        break;
+                }
+            }
+        }
+        
+        g2d.dispose();
+        return bfImage2;
     }
     
     public static Fingerprint mapMinutiaes(Fingerprint fingerprint){
-        
         int width = fingerprint.getWidth();
         int height = fingerprint.getHeight();
         byte[][] outSkeleton = BasicOperations.copy(fingerprint.getSkeleton());
+        int margin = 50;
+        int bif = 0;
+        int eol = 0;
         
-        for(int i=100; i<width-100; i++){
-            for(int j=100; j<height-100; j++){
+        Image img = FPManager.toImage(outSkeleton);
+        BufferedImage bfImg = new BufferedImage(width, height, Image.SCALE_SMOOTH);
+        Graphics2D g2d = bfImg.createGraphics();
+        g2d.drawImage(img,0,0,null);
+        g2d.dispose();
+        
+        for(int i=margin; i<width-margin; i++){
+            for(int j=margin; j<height-margin; j++){
                 int patterns = BasicOperations.timesPattern01(i,j,fingerprint.getSkeleton());
                 if(fingerprint.getSkeleton()[i][j]==1){
                     if(patterns==1){
                         outSkeleton = drawRectangle(i,j,outSkeleton,2);
+                        eol++;
                     }
                     if(patterns==3){
                         outSkeleton = drawRectangle(i,j,outSkeleton,3);
+                        bif++;
                     }
                 }
             }
         }
         
-        //Point core = getCore(fingerprint,10);
-        //outSkeleton = drawRectangle(core.x,core.y,outSkeleton,4);
-        
         fingerprint.setSkeleton(outSkeleton);
+        fingerprint.setBifurcations(bif);
+        fingerprint.setEndoflines(eol);
         return fingerprint;
     }
     
-    public static Point getCore(Fingerprint fingerprint, int searchRadius){
-        int width = fingerprint.getWidth();
-        int height = fingerprint.getHeight();
-        byte[][] skeleton = BasicOperations.copy(fingerprint.getSkeleton());
-        
-        Point core = new Point(0,0);
-        Point previous = new Point(0,0);
-        
-        Double gradCur = 0.0;
-        Double gradPrev = 0.0;
-        Double gradChangeBig = 0.0;
-        Double gradChange = 0.0;
-        Double gradDistanceBig = 0.0;
-        Double gradDistance = 0.0;
-        
-        for(int i=50; i<width-50; i++){
-            for(int j=50; j<height-50; j++){
-                if(skeleton[i][j]==1){
-                    int control = 0;
-                    Point p1 = new Point();
-                    Point p2 = new Point();
-                    
-                    for(int m=-1*searchRadius; m<=searchRadius; m++){
-                        for(int n=-1*searchRadius; n<=searchRadius; n++){
-                            if(m==searchRadius||m==-1*searchRadius||n==searchRadius||n==-1*searchRadius){
-                                int x = i+m;
-                                int y = j+n;
-                                if(skeleton[x][y]==1){
-                                    control++;
-                                    if(control==1){
-                                        p1.setLocation(x,y);
-                                    }else if(control==2){
-                                        p2.setLocation(x,y);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if(control==2){
-                        if((p2.x-p1.x)>0){
-                            gradCur = Double.valueOf(((double)(p2.y - p1.y)/(double)(p2.x - p1.x)));
-                            // if(gradCur>0.0 && gradPrev<0.0){
-                            gradChange = Double.valueOf(Math.abs(gradCur)+Math.abs(gradPrev));
-                            gradDistance = Double.valueOf(Math.abs(i)-Math.abs(previous.x));
-                            if(gradChangeBig<gradChange){
-                                if(gradDistanceBig<gradDistance){
-                                    gradChangeBig = gradChange;
-                                    gradDistanceBig = gradDistance;
-                                    core.setLocation(i,j);
-                                }
-                                break;
-                            }
-                            //}
-                            gradPrev = gradCur;
-                            gradCur = 0.0;
-                            previous.setLocation(i,j);
-                        }
-                    }
-                }
-            }
-        }
-        return core;
-    }
-    
     private static byte[][] drawRectangle(int x, int y, byte[][] skeleton, int color){
-        
-        for(int i=0; i<3; i++){
-            skeleton[x][y-i] = (byte)color;
-            skeleton[x+i][y-i] = (byte)color;
-            skeleton[x+i][y] = (byte)color;
-            skeleton[x+i][y+i] = (byte)color;
-            skeleton[x][y+i] = (byte)color;
-            skeleton[x-i][y+i] = (byte)color;
-            skeleton[x-i][y] = (byte)color;
-            skeleton[x-i][y-i] = (byte)color;
+        int size = 3;
+        for(int i=-size; i<=size; i++){
+            skeleton[x-i][y+size] = (byte)color;
+            skeleton[x+i][y-size] = (byte)color;
+            skeleton[x-size][y+i] = (byte)color;
+            skeleton[x+size][y-i] = (byte)color;
         }
-        
         return skeleton;
     }
     
