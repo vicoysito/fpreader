@@ -8,25 +8,14 @@ package br.com.teoni.fpreader.view;
 
 import br.com.teoni.fpreader.fingerprintprocessing.FPManager;
 import br.com.teoni.fpreader.griaule.Griaule;
-import br.com.teoni.fpreader.imageprocessing.BasicOperations;
 import br.com.teoni.fpreader.imageprocessing.Thinning;
 import br.com.teoni.fpreader.model.Fingerprint;
-import br.com.teoni.fpreader.model.Output;
 import com.griaule.grFinger.FingerprintImage;
 import com.griaule.grFinger.GrErrorException;
 import com.griaule.grFinger.ImageCallBack;
-import com.jhlabs.image.MedianFilter;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
-import java.awt.image.ConvolveOp;
 import java.awt.image.ImageProducer;
-import java.awt.image.Kernel;
-import java.awt.image.RescaleOp;
-import java.io.IOException;
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
@@ -43,8 +32,6 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
     public MainWindow() {
         initComponents();
         setIconImage(Toolkit.getDefaultToolkit().createImage(getClass().getResource("/br/com/teoni/fpreader/resources/images/icon.png")));
-        this.jToggleButton1.setSelected(true);
-        this.fingerPowerOnOff();
     }
     
     /** This method is called from within the constructor to
@@ -64,15 +51,23 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
         jButton4 = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
         jToggleButton1 = new javax.swing.JToggleButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        jLabel6 = new javax.swing.JLabel();
+        lblBif = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        lblEol = new javax.swing.JLabel();
+        jSeparator2 = new javax.swing.JSeparator();
+        jSeparator3 = new javax.swing.JSeparator();
+        jSeparator4 = new javax.swing.JSeparator();
+        jButton8 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("FPReader");
+        setResizable(false);
         jLabel1.setText("URL:");
 
         jButton1.setText("Selecionar...");
@@ -93,15 +88,15 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
+                .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 356, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
-                .add(31, 31, 31))
+                .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jButton2.setText("Zhang-Suen");
@@ -111,7 +106,7 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
             }
         });
 
-        jButton3.setText("Hildtch");
+        jButton3.setText("Hilditch");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
@@ -129,17 +124,10 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("Afinamento");
 
-        jButton5.setText("Desfazer Tudo");
+        jButton5.setText("Imagem Binarizada");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
-            }
-        });
-
-        jButton6.setText("Holt");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
             }
         });
 
@@ -150,47 +138,79 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
             }
         });
 
-        jTextArea1.setBackground(new java.awt.Color(0, 0, 0));
-        jTextArea1.setColumns(20);
-        jTextArea1.setEditable(false);
-        jTextArea1.setRows(5);
-        jTextArea1.setTabSize(4);
-        jScrollPane1.setViewportView(jTextArea1);
-
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("Outras Op\u00e7\u00f5es");
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel5.setText("Sa\u00edda");
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel5.setText("Informa\u00e7\u00f5es");
+
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/teoni/fpreader/resources/images/bifurcation.png")));
+        jLabel6.setText("Bifurca\u00e7\u00f5es");
+
+        lblBif.setForeground(new java.awt.Color(255, 0, 0));
+        lblBif.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblBif.setText("0");
+
+        jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/teoni/fpreader/resources/images/endofline.png")));
+        jLabel8.setText("Fim de Linha");
+
+        lblEol.setForeground(new java.awt.Color(0, 0, 255));
+        lblEol.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblEol.setText("0");
+
+        jButton8.setText("Imagem Capturada");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
+
+        jButton6.setText("Holt");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
                                 .add(jLabel1)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE))
+                                .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE))
                             .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                            .add(jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                            .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jToggleButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                            .add(jButton6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                            .add(jButton2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)))
-                    .add(jLabel5))
+                            .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(jButton8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(jSeparator4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparator3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, lblBif, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(jLabel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(lblEol, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jToggleButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(jButton2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .add(jButton6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -202,6 +222,8 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
                     .add(jButton1)
                     .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(jLabel3)
@@ -211,56 +233,75 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
                         .add(jButton3)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton6)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(18, 18, 18)
+                        .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(23, 23, 23)
                         .add(jLabel4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton5)
+                        .add(jButton8)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jButton5)
+                        .add(35, 35, 35)
+                        .add(jSeparator3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jLabel5)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jLabel6)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(lblBif)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jLabel8)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(lblEol)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jSeparator4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(jToggleButton1))
                     .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel5)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        Thinning.holt(this.fingerprint);
+        this.resetImage();
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+        this.setImage(this.fingerprint.getImage());
+    }//GEN-LAST:event_jButton8ActionPerformed
     
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
         this.fingerPowerOnOff();
     }//GEN-LAST:event_jToggleButton1ActionPerformed
-    
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        Thinning.holt(this.fingerprint);
-        this.refresh();
-    }//GEN-LAST:event_jButton6ActionPerformed
-    
+        
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        this.fingerprint.setSkeleton(this.fingerprint.getBinaryImage());
         this.resetImage();
     }//GEN-LAST:event_jButton5ActionPerformed
     
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         FPManager.mapMinutiaes(this.fingerprint);
-        this.refresh();
+        this.lblBif.setText(String.valueOf(this.fingerprint.getBifurcations()));
+        this.lblEol.setText(String.valueOf(this.fingerprint.getEndoflines()));
+        this.resetImage();
     }//GEN-LAST:event_jButton4ActionPerformed
     
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         Thinning.hilditch(this.fingerprint);
-        this.refresh();
+        this.resetImage();
     }//GEN-LAST:event_jButton3ActionPerformed
     
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         Thinning.zhangSuen(this.fingerprint);
-        this.refresh();
+        this.resetImage();
     }//GEN-LAST:event_jButton2ActionPerformed
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        this.path = this.openFile();
-        this.jTextField1.setText(this.path);
-        this.resetImage();
+        this.initFingerprint(this.openFile());
     }//GEN-LAST:event_jButton1ActionPerformed
     
     /**
@@ -299,45 +340,31 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
         }
     }
     
-    private void refresh(){
-        this.jLabel2.setIcon(new ImageIcon(FPManager.toImage(this.fingerprint.getSkeleton())));
+    public void initFingerprint(String url){
+        if(url==null){
+            this.fingerprint = FPManager.getFingerprint(this.producer);
+        }else{
+            this.fingerprint = FPManager.getFingerprint(url);
+        }
+        this.jTextField1.setText(url);
+        this.resetImage();
     }
     
     private void resetImage(){
-        try {
-            if(this.path.equals("")){
-                updateByFinger(this.producer);
-            }else{
-                this.fingerprint = FPManager.getFingerprint(this.path);
-                this.jLabel2.setIcon(new ImageIcon(FPManager.toImage(this.fingerprint.getBinaryImage())));
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        this.jLabel2.setIcon(new ImageIcon(FPManager.toImage(this.fingerprint.getSkeleton())));
+    }
+    
+    private void setImage(Image image){
+        this.jLabel2.setIcon(new ImageIcon(image));
     }
     
     public void onImage(String string, FingerprintImage fingerprintImage) {
         try {
             this.producer = fingerprintImage.newImageProducer();
-            updateByFinger(fingerprintImage.newImageProducer());
+            this.initFingerprint(null);
         } catch (GrErrorException ex) {
             ex.printStackTrace();
         }
-    }
-    
-    private void updateByFinger(ImageProducer producer){
-        this.path = "";
-        Image image = Toolkit.getDefaultToolkit().createImage(producer);
-        BufferedImage bfImg = new BufferedImage(image.getWidth(null)-50, image.getHeight(null)-50,BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = bfImg.createGraphics();
-        g2d.drawImage(image,-50,-50,null);
-        g2d.dispose();
-        
-        this.fingerprint = FPManager.getFingerprint(bfImg);
-        this.fingerprint.setSkeleton(BasicOperations.applyFilters(bfImg));
-        refresh();
-        
-        //this.jLabel2.setIcon(new ImageIcon(bfImg.getScaledInstance(bfImg.getWidth(), bfImg.getHeight(),java.awt.Image.SCALE_SMOOTH)));
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -347,19 +374,25 @@ public class MainWindow extends javax.swing.JFrame implements ImageCallBack {
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton8;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JSeparator jSeparator4;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JToggleButton jToggleButton1;
+    private javax.swing.JLabel lblBif;
+    private javax.swing.JLabel lblEol;
     // End of variables declaration//GEN-END:variables
     private Fingerprint fingerprint;
     private ImageProducer producer;
     private Griaule griaule;
-    private String path;
 }

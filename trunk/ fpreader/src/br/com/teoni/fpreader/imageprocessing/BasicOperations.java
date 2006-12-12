@@ -63,8 +63,21 @@ public class BasicOperations {
         return pattern01;
     }
     
+    public static boolean isEdge(int x, int y, byte[][] image){
+        int neighbours = BasicOperations.nonZeroNeighbours(x,y,image);
+        if(neighbours<2||neighbours>6){
+            return false;
+        }
+        int connectivity = BasicOperations.timesPattern01(x,y,image);
+        if(connectivity==1){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
     public static byte[][] binarizeImage(BufferedImage bfImage){
-        final int THRESHOLD = 190;
+        final int THRESHOLD = 185;
         int height = bfImage.getHeight();
         int width = bfImage.getWidth();
         byte[][] image = new byte[width][height];
@@ -92,7 +105,7 @@ public class BasicOperations {
         
         //Median filter 5 times
         MedianFilter filter = new MedianFilter();
-        for(int i=0; i<5; i++){
+        for(int i=0; i<1; i++){
             bfImage = filter.filter(bfImage, new BufferedImage(width,height, bfImage.getType()));
         }
         
