@@ -222,7 +222,7 @@ public class FPManager {
         g2d.drawImage(img,0,0,null);
         g2d.dispose();
         
-        for(int i=margin; i<width-margin; i++){
+        for(int i=margin+20; i<width-margin-20; i++){
             for(int j=margin; j<height-margin; j++){
                 int patterns = BasicOperations.timesPattern01(i,j,fingerprint.getSkeleton());
                 if(fingerprint.getSkeleton()[i][j]==1){
